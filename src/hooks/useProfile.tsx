@@ -43,5 +43,5 @@ export function useProfile() {
     }
   };
 
-  return { profile, loading, isAdmin: true }; // Mock admin for demonstration
+  return { profile, loading, isAdmin: profile?.role === 'admin' };
 }

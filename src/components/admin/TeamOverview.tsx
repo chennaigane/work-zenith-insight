@@ -212,9 +212,9 @@ export function TeamOverview() {
   };
 
   useEffect(() => {
-    // Using mock data for demonstration
-    setMockData();
-    // fetchTeamMembers();
+    // Use real Supabase data
+    fetchTeamMembers();
+    // setMockData();
   }, []);
 
   const fetchTeamMembers = async () => {
