@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Shield } from 'lucide-react';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -14,6 +14,9 @@ export default function Auth() {
   const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, user, loading } = useAuth();
+
+  // Check if this is admin login attempt
+  const isAdminLogin = email === 'info1@icondf.com';
 
   // Redirect if already authenticated
   if (loading) {
@@ -50,17 +53,20 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center bg-gradient-primary bg-clip-text text-transparent">
-            Syslytics
+          <CardTitle className="text-2xl font-bold text-center bg-gradient-primary bg-clip-text text-transparent flex items-center justify-center space-x-2">
+            {isAdminLogin && <Shield className="h-6 w-6 text-primary" />}
+            <span>{isAdminLogin ? 'Admin Portal' : 'Syslytics'}</span>
           </CardTitle>
           <CardDescription className="text-center">
-            Employee monitoring and analytics platform
+            {isAdminLogin ? 'Administrative access to team management' : 'Employee monitoring and analytics platform'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signin" className={isAdminLogin ? 'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' : ''}>
+                {isAdminLogin ? 'Admin Login' : 'Sign In'}
+              </TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             
@@ -88,14 +94,17 @@ export default function Auth() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className={`w-full ${isAdminLogin ? 'bg-primary hover:bg-primary/90' : ''}`} disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
+                      {isAdminLogin ? 'Authenticating admin...' : 'Signing in...'}
                     </>
                   ) : (
-                    'Sign In'
+                    <>
+                      {isAdminLogin && <Shield className="mr-2 h-4 w-4" />}
+                      {isAdminLogin ? 'Admin Login' : 'Sign In'}
+                    </>
                   )}
                 </Button>
               </form>
