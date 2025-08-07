@@ -36,8 +36,160 @@ export function TeamOverview() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  const setMockData = () => {
+    const mockTeamMembers: TeamMember[] = [
+      {
+        id: '1',
+        user_id: 'user-1',
+        email: 'sarah.johnson@company.com',
+        full_name: 'Sarah Johnson',
+        role: 'admin',
+        created_at: '2024-01-15T08:00:00Z',
+        isOnline: true,
+        currentActivity: {
+          activity_type: 'coding',
+          description: 'Working on user dashboard features',
+          status: 'active',
+          updated_at: new Date().toISOString(),
+        },
+        productivity: {
+          total_active_time: 480,
+          productive_time: 420,
+          idle_time: 60,
+          productivity_score: 87,
+        },
+        currentSession: {
+          id: 'session-1',
+          session_start: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        },
+      },
+      {
+        id: '2',
+        user_id: 'user-2',
+        email: 'mike.chen@company.com',
+        full_name: 'Mike Chen',
+        role: 'user',
+        created_at: '2024-01-20T09:00:00Z',
+        isOnline: true,
+        currentActivity: {
+          activity_type: 'meeting',
+          description: 'Team standup meeting',
+          status: 'active',
+          updated_at: new Date().toISOString(),
+        },
+        productivity: {
+          total_active_time: 360,
+          productive_time: 290,
+          idle_time: 70,
+          productivity_score: 81,
+        },
+        currentSession: {
+          id: 'session-2',
+          session_start: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        },
+      },
+      {
+        id: '3',
+        user_id: 'user-3',
+        email: 'emma.davis@company.com',
+        full_name: 'Emma Davis',
+        role: 'user',
+        created_at: '2024-02-01T10:00:00Z',
+        isOnline: false,
+        currentActivity: {
+          activity_type: 'break',
+          description: 'Lunch break',
+          status: 'idle',
+          updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        },
+        productivity: {
+          total_active_time: 240,
+          productive_time: 200,
+          idle_time: 40,
+          productivity_score: 83,
+        },
+      },
+      {
+        id: '4',
+        user_id: 'user-4',
+        email: 'alex.kumar@company.com',
+        full_name: 'Alex Kumar',
+        role: 'user',
+        created_at: '2024-02-10T11:00:00Z',
+        isOnline: true,
+        currentActivity: {
+          activity_type: 'documentation',
+          description: 'Updating API documentation',
+          status: 'active',
+          updated_at: new Date().toISOString(),
+        },
+        productivity: {
+          total_active_time: 420,
+          productive_time: 380,
+          idle_time: 40,
+          productivity_score: 90,
+        },
+        currentSession: {
+          id: 'session-4',
+          session_start: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+        },
+      },
+      {
+        id: '5',
+        user_id: 'user-5',
+        email: 'lisa.white@company.com',
+        full_name: 'Lisa White',
+        role: 'user',
+        created_at: '2024-02-15T12:00:00Z',
+        isOnline: true,
+        currentActivity: {
+          activity_type: 'testing',
+          description: 'Running automated tests',
+          status: 'active',
+          updated_at: new Date().toISOString(),
+        },
+        productivity: {
+          total_active_time: 300,
+          productive_time: 250,
+          idle_time: 50,
+          productivity_score: 75,
+        },
+        currentSession: {
+          id: 'session-5',
+          session_start: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+        },
+      },
+      {
+        id: '6',
+        user_id: 'user-6',
+        email: 'david.brown@company.com',
+        full_name: 'David Brown',
+        role: 'user',
+        created_at: '2024-02-20T13:00:00Z',
+        isOnline: false,
+        currentActivity: {
+          activity_type: 'offline',
+          description: null,
+          status: 'offline',
+          updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        },
+        productivity: {
+          total_active_time: 180,
+          productive_time: 150,
+          idle_time: 30,
+          productivity_score: 85,
+        },
+      },
+    ];
+
+    setTeamMembers(mockTeamMembers);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchTeamMembers();
+    // Using mock data for demonstration
+    setMockData();
+    // fetchTeamMembers();
   }, []);
 
   const fetchTeamMembers = async () => {
