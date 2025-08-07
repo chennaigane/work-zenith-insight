@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_usage: {
+        Row: {
+          application_name: string
+          created_at: string
+          duration: number | null
+          end_time: string | null
+          id: string
+          is_productive: boolean | null
+          session_id: string | null
+          start_time: string
+          user_id: string
+          window_title: string | null
+        }
+        Insert: {
+          application_name: string
+          created_at?: string
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          is_productive?: boolean | null
+          session_id?: string | null
+          start_time?: string
+          user_id: string
+          window_title?: string | null
+        }
+        Update: {
+          application_name?: string
+          created_at?: string
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          is_productive?: boolean | null
+          session_id?: string | null
+          start_time?: string
+          user_id?: string
+          window_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_usage_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_productivity: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          idle_time: number
+          productive_time: number
+          productivity_score: number | null
+          total_active_time: number
+          total_applications: number
+          total_websites: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          idle_time?: number
+          productive_time?: number
+          productivity_score?: number | null
+          total_active_time?: number
+          total_applications?: number
+          total_websites?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          idle_time?: number
+          productive_time?: number
+          productivity_score?: number | null
+          total_active_time?: number
+          total_applications?: number
+          total_websites?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -74,11 +163,95 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          session_end: string | null
+          session_start: string
+          total_duration: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_end?: string | null
+          session_start?: string
+          total_duration?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_end?: string | null
+          session_start?: string
+          total_duration?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      website_usage: {
+        Row: {
+          created_at: string
+          domain: string
+          duration: number | null
+          end_time: string | null
+          id: string
+          is_productive: boolean | null
+          session_id: string | null
+          start_time: string
+          title: string | null
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          is_productive?: boolean | null
+          session_id?: string | null
+          start_time?: string
+          title?: string | null
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          is_productive?: boolean | null
+          session_id?: string | null
+          start_time?: string
+          title?: string | null
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_usage_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_productivity_score: {
+        Args: { productive_minutes: number; total_minutes: number }
+        Returns: number
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]

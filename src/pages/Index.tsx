@@ -4,9 +4,9 @@ import { EmployeeCard } from "@/components/dashboard/EmployeeCard";
 import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ApplicationUsage } from "@/components/dashboard/ApplicationUsage";
 import { TeamOverview } from "@/components/admin/TeamOverview";
-import { UserActivity } from "@/components/user/UserActivity";
+import { UserDashboard } from "@/components/user/UserDashboard";
 import { useProfile } from "@/hooks/useProfile";
-import { Users, Clock, TrendingUp, Monitor, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 
 const Index = () => {
   const { profile, loading, isAdmin } = useProfile();
@@ -50,39 +50,7 @@ const Index = () => {
         ) : (
           // Regular User View - Can only see their own activities
           <>
-            {/* User Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <MetricCard
-                title="My Activities"
-                value="5"
-                change="2 active today"
-                changeType="positive"
-                icon={Users}
-              />
-              <MetricCard
-                title="Current Status"
-                value="Active"
-                change="Working on tasks"
-                changeType="positive"
-                icon={TrendingUp}
-              />
-              <MetricCard
-                title="Today's Time"
-                value="6h 45m"
-                change="Above average"
-                changeType="positive"
-                icon={Clock}
-              />
-              <MetricCard
-                title="Productivity"
-                value="85%"
-                change="Good progress"
-                changeType="positive"
-                icon={Monitor}
-              />
-            </div>
-            
-            <UserActivity />
+            <UserDashboard />
           </>
         )}
       </main>

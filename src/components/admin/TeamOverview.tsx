@@ -12,11 +12,22 @@ interface TeamMember {
   full_name: string | null;
   role: 'admin' | 'user';
   created_at: string;
+  isOnline?: boolean;
   currentActivity?: {
     activity_type: string;
     description: string | null;
     status: string;
     updated_at: string;
+  };
+  productivity?: {
+    total_active_time: number;
+    productive_time: number;
+    idle_time: number;
+    productivity_score: number;
+  };
+  currentSession?: {
+    id: string;
+    session_start: string;
   };
 }
 
@@ -39,9 +50,12 @@ export function TeamOverview() {
 
       if (profilesError) throw profilesError;
 
-      // Fetch latest activity for each user
+      const today = new Date().toISOString().split('T')[0];
+
+      // Fetch latest activity and productivity data for each user
       const membersWithActivities = await Promise.all(
         profiles.map(async (profile) => {
+          // Get latest activity
           const { data: activity } = await supabase
             .from('team_activities')
             .select('*')
@@ -50,9 +64,30 @@ export function TeamOverview() {
             .limit(1)
             .maybeSingle();
 
+          // Get today's productivity data
+          const { data: productivity } = await supabase
+            .from('daily_productivity')
+            .select('*')
+            .eq('user_id', profile.user_id)
+            .eq('date', today)
+            .maybeSingle();
+
+          // Get current session
+          const { data: currentSession } = await supabase
+            .from('user_sessions')
+            .select('*')
+            .eq('user_id', profile.user_id)
+            .is('session_end', null)
+            .order('session_start', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
           return {
             ...profile,
-            currentActivity: activity || undefined
+            currentActivity: activity || undefined,
+            productivity: productivity || undefined,
+            currentSession: currentSession || undefined,
+            isOnline: !!currentSession
           };
         })
       );
@@ -72,16 +107,17 @@ export function TeamOverview() {
 
   const getStats = () => {
     const totalMembers = teamMembers.length;
+    const onlineMembers = teamMembers.filter(member => member.isOnline).length;
     const activeMembers = teamMembers.filter(
       member => member.currentActivity?.status === 'active'
     ).length;
     const adminCount = teamMembers.filter(member => member.role === 'admin').length;
-    const recentActivity = teamMembers.filter(
-      member => member.currentActivity && 
-      new Date(member.currentActivity.updated_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-    ).length;
+    const avgProductivity = teamMembers.length > 0 
+      ? Math.round(teamMembers.reduce((sum, member) => 
+          sum + (member.productivity?.productivity_score || 0), 0) / teamMembers.length)
+      : 0;
 
-    return { totalMembers, activeMembers, adminCount, recentActivity };
+    return { totalMembers, onlineMembers, activeMembers, adminCount, avgProductivity };
   };
 
   const stats = getStats();
@@ -121,9 +157,9 @@ export function TeamOverview() {
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
               <UserCheck className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-muted-foreground">Active Now</span>
+              <span className="text-sm font-medium text-muted-foreground">Online Now</span>
             </div>
-            <div className="text-2xl font-bold text-green-600">{stats.activeMembers}</div>
+            <div className="text-2xl font-bold text-green-600">{stats.onlineMembers}</div>
           </CardContent>
         </Card>
         
@@ -131,9 +167,9 @@ export function TeamOverview() {
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
               <Activity className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-muted-foreground">Recent Activity</span>
+              <span className="text-sm font-medium text-muted-foreground">Team Productivity</span>
             </div>
-            <div className="text-2xl font-bold text-blue-600">{stats.recentActivity}</div>
+            <div className="text-2xl font-bold text-blue-600">{stats.avgProductivity}%</div>
           </CardContent>
         </Card>
         

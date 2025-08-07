@@ -15,8 +15,7 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, user, loading } = useAuth();
 
-  // Check if this is admin login attempt
-  const isAdminLogin = email === 'info1@icondf.com';
+  // Note: Admin access is now controlled through database invitations
 
   // Redirect if already authenticated
   if (loading) {
@@ -53,20 +52,17 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center bg-gradient-primary bg-clip-text text-transparent flex items-center justify-center space-x-2">
-            {isAdminLogin && <Shield className="h-6 w-6 text-primary" />}
-            <span>{isAdminLogin ? 'Admin Portal' : 'Syslytics'}</span>
+          <CardTitle className="text-2xl font-bold text-center bg-gradient-primary bg-clip-text text-transparent">
+            Syslytics
           </CardTitle>
           <CardDescription className="text-center">
-            {isAdminLogin ? 'Administrative access to team management' : 'Employee monitoring and analytics platform'}
+            Employee monitoring and analytics platform
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin" className={isAdminLogin ? 'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' : ''}>
-                {isAdminLogin ? 'Admin Login' : 'Sign In'}
-              </TabsTrigger>
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             
@@ -94,17 +90,14 @@ export default function Auth() {
                     required
                   />
                 </div>
-                <Button type="submit" className={`w-full ${isAdminLogin ? 'bg-primary hover:bg-primary/90' : ''}`} disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isAdminLogin ? 'Authenticating admin...' : 'Signing in...'}
+                      Signing in...
                     </>
                   ) : (
-                    <>
-                      {isAdminLogin && <Shield className="mr-2 h-4 w-4" />}
-                      {isAdminLogin ? 'Admin Login' : 'Sign In'}
-                    </>
+                    'Sign In'
                   )}
                 </Button>
               </form>
