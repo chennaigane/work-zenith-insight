@@ -41,7 +41,7 @@ export function TeamOverview() {
       {
         id: '1',
         user_id: 'user-1',
-        email: 'kiran@company.com',
+        email: 'johnkiran@icondf.com',
         full_name: 'Kiran',
         role: 'admin',
         created_at: '2024-01-15T08:00:00Z',
@@ -66,7 +66,7 @@ export function TeamOverview() {
       {
         id: '2',
         user_id: 'user-2',
-        email: 'ganesh@company.com',
+        email: 'chennaigane@gmail.com',
         full_name: 'Ganesh',
         role: 'user',
         created_at: '2024-01-20T09:00:00Z',
@@ -91,7 +91,7 @@ export function TeamOverview() {
       {
         id: '3',
         user_id: 'user-3',
-        email: 'raghavendra@company.com',
+        email: 'raghavendrakvms@gmail.com',
         full_name: 'Raghavendra',
         role: 'user',
         created_at: '2024-02-01T10:00:00Z',
@@ -112,7 +112,7 @@ export function TeamOverview() {
       {
         id: '4',
         user_id: 'user-4',
-        email: 'dhanalakshmi@company.com',
+        email: 'dhanalakshmidharmana006@gmail.com',
         full_name: 'Dhanalakshmi',
         role: 'user',
         created_at: '2024-02-10T11:00:00Z',
@@ -137,8 +137,8 @@ export function TeamOverview() {
       {
         id: '5',
         user_id: 'user-5',
-        email: 'jitheeshwaran@company.com',
-        full_name: 'Jitheeshwaran',
+        email: 'vijayakumar.jjstark@gmail.com',
+        full_name: 'Vijayakumar',
         role: 'user',
         created_at: '2024-02-15T12:00:00Z',
         isOnline: true,
@@ -162,7 +162,7 @@ export function TeamOverview() {
       {
         id: '6',
         user_id: 'user-6',
-        email: 'jananieshwari@company.com',
+        email: 'jananieshwaripalani@gmail.com',
         full_name: 'Jananieshwari',
         role: 'user',
         created_at: '2024-02-20T13:00:00Z',
@@ -183,7 +183,7 @@ export function TeamOverview() {
       {
         id: '7',
         user_id: 'user-7',
-        email: 'yogalakshmi@company.com',
+        email: 'yogalaksmi06@gmail.com',
         full_name: 'Yogalakshmi',
         role: 'user',
         created_at: '2024-02-25T14:00:00Z',
