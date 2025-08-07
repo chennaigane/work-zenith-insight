@@ -9,7 +9,7 @@ export const Header = () => {
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center space-x-4">
           <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            WorkZenith
+            Syslytics
           </h1>
           <div className="hidden md:flex items-center space-x-2 bg-muted rounded-lg px-3 py-2">
             <Search className="h-4 w-4 text-muted-foreground" />
