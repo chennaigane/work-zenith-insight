@@ -1,10 +1,7 @@
-import streamlit as st
+import gradio as gr
 
-st.set_page_config(page_title="Work Zenith Insight", layout="centered")
+def greet(name):
+    return f"Hello, {name}! Your Gradio app is now working."
 
-st.title("Welcome to Work Zenith Insight 👋")
-st.write("This is a sample Streamlit app deployed from GitHub to Hugging Face Spaces.")
-
-name = st.text_input("Enter your name:")
-if name:
-    st.success(f"Hello, {name}! Your app is now working.")
+iface = gr.Interface(fn=greet, inputs="text", outputs="text", title="Work Zenith Insight", description="Gradio-powered app")
+iface.launch()
