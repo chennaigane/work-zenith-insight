@@ -2,6 +2,8 @@ import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ApplicationUsage } from "@/components/dashboard/ApplicationUsage";
 import { WebsiteUsageChart } from "@/components/dashboard/WebsiteUsageChart";
+import { ProductiveWebsites } from "@/components/dashboard/ProductiveWebsites";
+import { UnproductiveWebsites } from "@/components/dashboard/UnproductiveWebsites";
 import { UserActivity } from "@/components/user/UserActivity";
 import { ProductivityPieChart } from "@/components/user/ProductivityPieChart";
 import { useProductivityMetrics } from "@/hooks/useProductivityMetrics";
@@ -95,6 +97,12 @@ export function UserDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ApplicationUsage />
         <WebsiteUsageChart />
+      </div>
+
+      {/* Website Usage Breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ProductiveWebsites />
+        <UnproductiveWebsites />
       </div>
     </div>
   );
