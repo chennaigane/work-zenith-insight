@@ -320,66 +320,94 @@ export function TeamOverview() {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-gradient-card border-0 shadow-card">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Total Members</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">Total Members</span>
+                </div>
+                <div className="text-3xl font-bold text-foreground">{stats.totalMembers}</div>
+              </div>
+              <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
             </div>
-            <div className="text-2xl font-bold">{stats.totalMembers}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-card border-0 shadow-card">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <UserCheck className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-muted-foreground">Online Now</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <UserCheck className="h-4 w-4 text-success" />
+                  <span className="text-sm font-medium text-muted-foreground">Online Now</span>
+                </div>
+                <div className="text-3xl font-bold text-success">{stats.onlineMembers}</div>
+              </div>
+              <div className="h-12 w-12 bg-success/10 rounded-lg flex items-center justify-center">
+                <UserCheck className="h-6 w-6 text-success" />
+              </div>
             </div>
-            <div className="text-2xl font-bold text-green-600">{stats.onlineMembers}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-card border-0 shadow-card">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Activity className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-muted-foreground">Team Productivity</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-muted-foreground">Team Productivity</span>
+                </div>
+                <div className="text-3xl font-bold text-primary">{stats.avgProductivity}%</div>
+              </div>
+              <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Activity className="h-6 w-6 text-primary" />
+              </div>
             </div>
-            <div className="text-2xl font-bold text-blue-600">{stats.avgProductivity}%</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-card border-0 shadow-card">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-orange-600" />
-              <span className="text-sm font-medium text-muted-foreground">Admins</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Clock className="h-4 w-4 text-warning" />
+                  <span className="text-sm font-medium text-muted-foreground">Admins</span>
+                </div>
+                <div className="text-3xl font-bold text-warning">{stats.adminCount}</div>
+              </div>
+              <div className="h-12 w-12 bg-warning/10 rounded-lg flex items-center justify-center">
+                <Clock className="h-6 w-6 text-warning" />
+              </div>
             </div>
-            <div className="text-2xl font-bold text-orange-600">{stats.adminCount}</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Team Members Grid */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Members</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {teamMembers.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No team members found
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {teamMembers.map((member) => (
-                <TeamMemberCard key={member.id} member={member} />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Team Members Section */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-foreground">Team Members</h2>
+        {teamMembers.length === 0 ? (
+          <Card className="bg-gradient-card border-0 shadow-card">
+            <CardContent className="p-8">
+              <div className="text-center text-muted-foreground">
+                No team members found
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {teamMembers.map((member) => (
+              <TeamMemberCard key={member.id} member={member} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

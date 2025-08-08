@@ -43,13 +43,14 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
   };
 
   const getStatusColor = (status: string, isOnline?: boolean) => {
-    if (!isOnline) return 'bg-gray-400';
+    if (!isOnline) return 'bg-inactive';
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'break': return 'bg-yellow-500';
-      case 'away': return 'bg-orange-500';
-      case 'busy': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'active': return 'bg-success';
+      case 'break': return 'bg-warning';
+      case 'away': return 'bg-warning';
+      case 'busy': return 'bg-destructive';
+      case 'idle': return 'bg-warning';
+      default: return 'bg-inactive';
     }
   };
 
@@ -71,105 +72,101 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-4">
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src="" />
-            <AvatarFallback className="bg-primary/10 text-primary font-medium">
-              {getInitials(member.full_name, member.email)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-base font-medium truncate">
-              {member.full_name || member.email}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground truncate">
-              {member.email}
-            </p>
+    <Card className="bg-gradient-card border-0 shadow-card hover:shadow-lg transition-all duration-200">
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <Avatar className="h-12 w-12 border-2 border-background">
+                <AvatarImage src="#" alt={member.full_name || member.email} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                  {getInitials(member.full_name, member.email)}
+                </AvatarFallback>
+              </Avatar>
+              <div 
+                className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${getStatusColor(
+                  member.currentActivity?.status || 'offline', 
+                  member.isOnline
+                )}`} 
+              />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm text-foreground">
+                {member.full_name || 'Unknown User'}
+              </h3>
+              <p className="text-xs text-muted-foreground">{member.email}</p>
+              <Badge 
+                variant={member.role === 'admin' ? 'default' : 'secondary'} 
+                className="text-xs mt-1"
+              >
+                {member.role}
+              </Badge>
+            </div>
           </div>
-          <Badge variant={member.role === 'admin' ? 'default' : 'secondary'}>
-            {member.role}
-          </Badge>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0 space-y-3">
-        {/* Online Status & Current Activity */}
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${getStatusColor(
-              member.currentActivity?.status || 'offline', 
-              member.isOnline
-            )}`} />
-            <span className="text-sm font-medium capitalize">
-              {member.isOnline 
-                ? (member.currentActivity?.status || 'online') 
-                : 'offline'
-              }
+          <div className="text-right">
+            <span className={`text-xs font-medium ${
+              member.isOnline ? 'text-success' : 'text-muted-foreground'
+            }`}>
+              {member.isOnline ? 'Active' : 'Offline'}
             </span>
           </div>
-          
-          {member.currentActivity && (
-            <div className="flex items-start space-x-2">
-              <Activity className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">
-                  {member.currentActivity.activity_type}
-                </p>
-                {member.currentActivity.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {member.currentActivity.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
-
+        
+        {/* Current Activity */}
+        {member.currentActivity && (
+          <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${
+                member.currentActivity.status === 'active' ? 'bg-success' :
+                member.currentActivity.status === 'idle' ? 'bg-warning' : 'bg-muted-foreground'
+              }`}></div>
+              <span className="text-xs font-medium capitalize text-foreground">
+                {member.currentActivity.activity_type}
+              </span>
+            </div>
+            {member.currentActivity.description && (
+              <p className="text-xs text-muted-foreground ml-4">
+                {member.currentActivity.description}
+              </p>
+            )}
+          </div>
+        )}
+        
         {/* Productivity Metrics */}
         {member.productivity && (
-          <div className="space-y-2 pt-2 border-t">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1">
-                <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Productivity</span>
-              </div>
-              <span className="text-xs font-medium">
-                {Math.round(member.productivity.productivity_score)}%
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-muted-foreground">Productivity</span>
+              <span className="text-sm font-bold text-primary">
+                {member.productivity.productivity_score}%
               </span>
             </div>
             <Progress 
               value={member.productivity.productivity_score} 
-              className="h-1.5"
+              className="h-2 bg-muted/50"
             />
-            
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="flex items-center space-x-1">
-                <Monitor className="h-3 w-3 text-muted-foreground" />
-                <span className="text-muted-foreground">Active:</span>
-                <span className="font-medium">
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <span className="text-muted-foreground">Active: </span>
+                <span className="font-medium text-foreground">
                   {formatDuration(member.productivity.total_active_time)}
                 </span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3 text-muted-foreground" />
-                <span className="text-muted-foreground">Productive:</span>
-                <span className="font-medium">
+              <div>
+                <span className="text-muted-foreground">Productive: </span>
+                <span className="font-medium text-foreground">
                   {formatDuration(member.productivity.productive_time)}
                 </span>
               </div>
             </div>
           </div>
         )}
-
+        
         {/* Session Info */}
         {member.currentSession && (
-          <div className="pt-2 border-t">
-            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>Online since {formatTime(member.currentSession.session_start)}</span>
-            </div>
+          <div className="flex items-center space-x-1 text-xs text-muted-foreground pt-2 border-t border-border/50">
+            <Clock className="h-3 w-3" />
+            <span>Online since {formatTime(member.currentSession.session_start)}</span>
           </div>
         )}
       </CardContent>
