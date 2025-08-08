@@ -42,9 +42,9 @@ export function TeamOverview() {
       {
         id: '1',
         user_id: 'user-1',
-        email: 'info1@icondf.com',
-        full_name: 'Admin User',
-        role: 'admin',
+        email: 'sarah.johnson@company.com',
+        full_name: 'Sarah Johnson',
+        role: 'user',
         created_at: '2024-01-15T08:00:00Z',
         isOnline: true,
         currentActivity: {
