@@ -1,10 +1,12 @@
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ApplicationUsage } from "@/components/dashboard/ApplicationUsage";
+import { WebsiteUsageChart } from "@/components/dashboard/WebsiteUsageChart";
 import { UserActivity } from "@/components/user/UserActivity";
 import { ProductivityPieChart } from "@/components/user/ProductivityPieChart";
 import { useProductivityMetrics } from "@/hooks/useProductivityMetrics";
 import { Users, Clock, TrendingUp, Monitor } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function UserDashboard() {
   const { metrics, loading } = useProductivityMetrics();
@@ -71,13 +73,28 @@ export function UserDashboard() {
 
       {/* Charts and Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ActivityChart />
-        <ProductivityPieChart />
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-red-400">Weekly Activity Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ActivityChart />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-red-400">Today's Productivity Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProductivityPieChart />
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ApplicationUsage />
-        <UserActivity />
+        <WebsiteUsageChart />
       </div>
     </div>
   );

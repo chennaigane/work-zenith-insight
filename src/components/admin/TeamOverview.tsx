@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TeamMemberCard } from './TeamMemberCard';
+import { TeamProductivityChart } from './TeamProductivityChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, UserCheck, Clock, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -388,6 +389,16 @@ export function TeamOverview() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Team Productivity Chart */}
+      <TeamProductivityChart 
+        teamData={teamMembers.map(member => ({
+          name: member.full_name || member.email,
+          productive: (member.productivity?.productive_time || 0) / 60, // Convert to hours
+          idle: (member.productivity?.idle_time || 0) / 60, // Convert to hours
+          offline: Math.max(0, 8 - ((member.productivity?.total_active_time || 0) / 60)) // Assuming 8-hour workday
+        }))}
+      />
 
       {/* Team Members Section */}
       <div className="space-y-4">
