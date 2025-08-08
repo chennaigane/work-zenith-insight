@@ -41,8 +41,8 @@ export function TeamOverview() {
       {
         id: '1',
         user_id: 'user-1',
-        email: 'johnkiran@icondf.com',
-        full_name: 'Kiran',
+        email: 'admin@demo.com',
+        full_name: 'Admin User',
         role: 'admin',
         created_at: '2024-01-15T08:00:00Z',
         isOnline: true,
