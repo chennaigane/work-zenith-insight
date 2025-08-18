@@ -7,16 +7,17 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Shield } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, user, loading } = useAuth();
-
-  // Note: Admin access is now controlled through database invitations
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const { signIn, signUp, resetPassword, user, loading } = useAuth();
 
   // Redirect if already authenticated
   if (loading) {
@@ -48,6 +49,95 @@ export default function Auth() {
     await signUp(email, password, fullName);
     setIsLoading(false);
   };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) return;
+    
+    setIsLoading(true);
+    const { error } = await resetPassword(resetEmail);
+    setIsLoading(false);
+    
+    if (!error) {
+      setResetSent(true);
+    }
+  };
+
+  const resetForgotPasswordState = () => {
+    setShowForgotPassword(false);
+    setResetSent(false);
+    setResetEmail('');
+  };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={resetForgotPasswordState}
+                className="p-0 h-auto"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                Reset Password
+              </CardTitle>
+            </div>
+            <CardDescription>
+              {resetSent 
+                ? "Check your email for password reset instructions"
+                : "Enter your email address to reset your password"
+              }
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {resetSent ? (
+              <div className="text-center space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  We've sent a password reset link to <strong>{resetEmail}</strong>
+                </p>
+                <Button 
+                  onClick={resetForgotPasswordState}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Back to Sign In
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending reset link...
+                    </>
+                  ) : (
+                    'Send Reset Link'
+                  )}
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle px-4">
@@ -101,6 +191,16 @@ export default function Auth() {
                     'Sign In'
                   )}
                 </Button>
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-sm"
+                    onClick={() => setShowForgotPassword(true)}
+                  >
+                    Forgot your password?
+                  </Button>
+                </div>
               </form>
             </TabsContent>
             
