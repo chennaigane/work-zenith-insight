@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -53,7 +54,7 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center bg-gradient-primary bg-clip-text text-transparent">
-            Syslytics
+            Metrx
           </CardTitle>
           <CardDescription className="text-center">
             Employee monitoring and analytics platform

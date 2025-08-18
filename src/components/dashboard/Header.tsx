@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bell, Search, Settings, LogOut } from "lucide-react";
@@ -34,9 +35,9 @@ export const Header = () => {
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">S</span>
+              <span className="text-white font-bold text-sm">M</span>
             </div>
-            <h1 className="text-2xl font-bold text-primary">Syslytics</h1>
+            <h1 className="text-2xl font-bold text-primary">Metrx</h1>
           </div>
           
           <div className="hidden md:flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2 min-w-0 flex-1 max-w-md">
