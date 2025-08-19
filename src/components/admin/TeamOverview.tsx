@@ -1,8 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TeamMemberCard } from './TeamMemberCard';
 import { TeamProductivityChart } from './TeamProductivityChart';
+import { RealTimeEmployeeMonitor } from './RealTimeEmployeeMonitor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, UserCheck, Clock, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -390,35 +393,51 @@ export function TeamOverview() {
         </Card>
       </div>
 
-      {/* Team Productivity Chart */}
-      <TeamProductivityChart 
-        teamData={teamMembers.map(member => ({
-          name: member.full_name || member.email,
-          productive: (member.productivity?.productive_time || 0) / 60, // Convert to hours
-          idle: (member.productivity?.idle_time || 0) / 60, // Convert to hours
-          offline: Math.max(0, 8 - ((member.productivity?.total_active_time || 0) / 60)) // Assuming 8-hour workday
-        }))}
-      />
+      {/* Tabs for different views */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Team Overview</TabsTrigger>
+          <TabsTrigger value="monitor">Real-Time Monitor</TabsTrigger>
+          <TabsTrigger value="productivity">Productivity Chart</TabsTrigger>
+        </TabsList>
 
-      {/* Team Members Section */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-foreground">Team Members</h2>
-        {teamMembers.length === 0 ? (
-          <Card className="bg-gradient-card border-0 shadow-card">
-            <CardContent className="p-8">
-              <div className="text-center text-muted-foreground">
-                No team members found
+        <TabsContent value="overview" className="space-y-6">
+          {/* Team Members Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-foreground">Team Members</h2>
+            {teamMembers.length === 0 ? (
+              <Card className="bg-gradient-card border-0 shadow-card">
+                <CardContent className="p-8">
+                  <div className="text-center text-muted-foreground">
+                    No team members found
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {teamMembers.map((member) => (
+                  <TeamMemberCard key={member.id} member={member} />
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {teamMembers.map((member) => (
-              <TeamMemberCard key={member.id} member={member} />
-            ))}
+            )}
           </div>
-        )}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="monitor">
+          <RealTimeEmployeeMonitor />
+        </TabsContent>
+
+        <TabsContent value="productivity">
+          <TeamProductivityChart 
+            teamData={teamMembers.map(member => ({
+              name: member.full_name || member.email,
+              productive: (member.productivity?.productive_time || 0) / 60, // Convert to hours
+              idle: (member.productivity?.idle_time || 0) / 60, // Convert to hours
+              offline: Math.max(0, 8 - ((member.productivity?.total_active_time || 0) / 60)) // Assuming 8-hour workday
+            }))}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
