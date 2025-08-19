@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Shield, User } from 'lucide-react';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -17,6 +16,7 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [loginType, setLoginType] = useState<'user' | 'admin'>('user');
   const { signIn, signUp, resetPassword, user, loading } = useAuth();
 
   // Redirect if already authenticated
@@ -46,7 +46,8 @@ export default function Auth() {
     if (!email || !password) return;
     
     setIsLoading(true);
-    await signUp(email, password, fullName);
+    // Pass the role based on loginType
+    await signUp(email, password, fullName, loginType === 'admin' ? 'admin' : 'user');
     setIsLoading(false);
   };
 
@@ -78,7 +79,11 @@ export default function Auth() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={resetForgotPasswordState}
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setResetSent(false);
+                  setResetEmail('');
+                }}
                 className="p-0 h-auto"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -101,7 +106,11 @@ export default function Auth() {
                   We've sent a password reset link to <strong>{resetEmail}</strong>
                 </p>
                 <Button 
-                  onClick={resetForgotPasswordState}
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setResetSent(false);
+                    setResetEmail('');
+                  }}
                   variant="outline"
                   className="w-full"
                 >
@@ -109,7 +118,18 @@ export default function Auth() {
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleForgotPassword} className="space-y-4">
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                if (!resetEmail) return;
+                
+                setIsLoading(true);
+                const { error } = await resetPassword(resetEmail);
+                setIsLoading(false);
+                
+                if (!error) {
+                  setResetSent(true);
+                }
+              }} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="reset-email">Email</Label>
                   <Input
@@ -151,6 +171,31 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Login Type Selector */}
+          <div className="mb-6">
+            <Label className="text-sm font-medium mb-3 block">Login as:</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant={loginType === 'user' ? 'default' : 'outline'}
+                onClick={() => setLoginType('user')}
+                className="flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                Employee
+              </Button>
+              <Button
+                type="button"
+                variant={loginType === 'admin' ? 'default' : 'outline'}
+                onClick={() => setLoginType('admin')}
+                className="flex items-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Button>
+            </div>
+          </div>
+
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -158,6 +203,21 @@ export default function Auth() {
             </TabsList>
             
             <TabsContent value="signin" className="space-y-4">
+              <div className="text-center mb-4">
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+                  {loginType === 'admin' ? (
+                    <>
+                      <Shield className="h-4 w-4" />
+                      Admin Login
+                    </>
+                  ) : (
+                    <>
+                      <User className="h-4 w-4" />
+                      Employee Login
+                    </>
+                  )}
+                </p>
+              </div>
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
@@ -188,7 +248,7 @@ export default function Auth() {
                       Signing in...
                     </>
                   ) : (
-                    'Sign In'
+                    `Sign In as ${loginType === 'admin' ? 'Admin' : 'Employee'}`
                   )}
                 </Button>
                 <div className="text-center">
@@ -205,6 +265,21 @@ export default function Auth() {
             </TabsContent>
             
             <TabsContent value="signup" className="space-y-4">
+              <div className="text-center mb-4">
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+                  {loginType === 'admin' ? (
+                    <>
+                      <Shield className="h-4 w-4" />
+                      Create Admin Account
+                    </>
+                  ) : (
+                    <>
+                      <User className="h-4 w-4" />
+                      Create Employee Account
+                    </>
+                  )}
+                </p>
+              </div>
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-name">Full Name</Label>
@@ -245,7 +320,7 @@ export default function Auth() {
                       Creating account...
                     </>
                   ) : (
-                    'Sign Up'
+                    `Create ${loginType === 'admin' ? 'Admin' : 'Employee'} Account`
                   )}
                 </Button>
               </form>

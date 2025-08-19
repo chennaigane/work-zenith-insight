@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +8,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName?: string, role?: 'admin' | 'user') => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
 }
@@ -73,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, role: 'admin' | 'user' = 'user') => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -84,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName || '',
+            role: role,
           }
         }
       });
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         toast({
           title: "Success",
-          description: "Account created successfully! Please check your email to verify your account.",
+          description: `${role === 'admin' ? 'Admin' : 'Employee'} account created successfully! Please check your email to verify your account.`,
         });
       }
       
