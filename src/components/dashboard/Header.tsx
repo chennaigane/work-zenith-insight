@@ -1,97 +1,129 @@
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Bell, Search, Settings, LogOut } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { SessionStatus } from "@/components/dashboard/SessionStatus";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { Play, Square, LogOut, User, Eye } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { useToast } from '@/hooks/use-toast';
 
-export const Header = () => {
-  const { signOut, user } = useAuth();
+export function Header() {
+  const [isTracking, setIsTracking] = useState(false);
+  const { signOut } = useAuth();
+  const { profile, isAdmin } = useProfile();
+  const { toast } = useToast();
+
+  const handleStartTracking = () => {
+    setIsTracking(true);
+    toast({
+      title: "Tracking Started",
+      description: "Your activity is now being monitored",
+    });
+  };
+
+  const handleStopTracking = () => {
+    setIsTracking(false);
+    toast({
+      title: "Tracking Stopped", 
+      description: "Activity monitoring has been paused",
+    });
+  };
+
+  const handleMonitorUsers = () => {
+    // This will be handled by the parent component or routing
+    toast({
+      title: "User Monitoring",
+      description: "Switching to real-time user monitoring view",
+    });
+  };
 
   const handleSignOut = async () => {
     await signOut();
   };
 
-  const handleNotifications = () => {
-    console.log("Notifications clicked");
-  };
-
-  const handleSettings = () => {
-    console.log("Settings clicked");
-  };
-
-  const handleSearch = (query: string) => {
-    console.log("Search query:", query);
+  const getInitials = (name: string | null, email: string) => {
+    if (name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
   };
 
   return (
-    <header className="bg-card shadow-card border-b border-border/40 px-6 py-4">
+    <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M</span>
-            </div>
-            <h1 className="text-2xl font-bold text-primary">Metrx</h1>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2 min-w-0 flex-1 max-w-md">
-            <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Input
-              placeholder="Search activities, apps, websites..."
-              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-          </div>
-        </div>
-
         <div className="flex items-center space-x-4">
-          {/* Session Status Indicator */}
-          <SessionStatus />
+          <h1 className="text-xl font-bold text-foreground">Employee Tracker</h1>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          {/* Show Monitor Users button for admins, Start/Stop Tracking for regular users */}
+          {isAdmin ? (
+            <Button 
+              onClick={handleMonitorUsers}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Monitor Users
+            </Button>
+          ) : (
+            <>
+              {!isTracking ? (
+                <Button 
+                  onClick={handleStartTracking}
+                  className="bg-success hover:bg-success/90 text-success-foreground"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Start Tracking
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleStopTracking}
+                  variant="destructive"
+                >
+                  <Square className="h-4 w-4 mr-2" />
+                  Stop Tracking  
+                </Button>
+              )}
+            </>
+          )}
           
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNotifications}
-            className="relative hover:bg-accent"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-[10px] flex items-center justify-center text-destructive-foreground">
-              3
-            </span>
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSettings}
-            className="hover:bg-accent"
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
-
-          <div className="flex items-center space-x-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium">{user?.email}</p>
-              <p className="text-xs text-muted-foreground">Employee</p>
-            </div>
-            <div className="h-8 w-8 bg-gradient-secondary rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
-                {user?.email?.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="hover:bg-accent text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="#" alt={profile?.full_name || profile?.email} />
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {profile ? getInitials(profile.full_name, profile.email) : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuItem className="flex items-center">
+                <User className="h-4 w-4 mr-2" />
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {profile?.full_name || 'Unknown User'}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {profile?.email}
+                  </p>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
   );
-};
+}
