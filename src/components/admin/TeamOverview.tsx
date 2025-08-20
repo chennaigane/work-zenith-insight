@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TeamMemberCard } from './TeamMemberCard';
@@ -6,7 +5,8 @@ import { TeamProductivityChart } from './TeamProductivityChart';
 import { RealTimeEmployeeMonitor } from './RealTimeEmployeeMonitor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, UserCheck, Clock, Activity } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, UserCheck, Clock, Activity, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface TeamMember {
@@ -38,6 +38,7 @@ interface TeamMember {
 export function TeamOverview() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
   const { toast } = useToast();
 
   const setMockData = () => {
@@ -286,6 +287,14 @@ export function TeamOverview() {
     }
   };
 
+  const handleMonitorUsers = () => {
+    setActiveTab('monitor');
+    toast({
+      title: "User Monitoring",
+      description: "Switching to real-time user monitoring view",
+    });
+  };
+
   const getStats = () => {
     const totalMembers = teamMembers.length;
     const onlineMembers = teamMembers.filter(member => member.isOnline).length;
@@ -322,6 +331,17 @@ export function TeamOverview() {
 
   return (
     <div className="space-y-6">
+      {/* Quick Action Button */}
+      <div className="flex justify-end">
+        <Button 
+          onClick={handleMonitorUsers}
+          className="bg-primary hover:bg-primary/90"
+        >
+          <Eye className="h-4 w-4 mr-2" />
+          Monitor Users
+        </Button>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-card border-0 shadow-card">
@@ -394,7 +414,7 @@ export function TeamOverview() {
       </div>
 
       {/* Tabs for different views */}
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Team Overview</TabsTrigger>
           <TabsTrigger value="monitor">Real-Time Monitor</TabsTrigger>
