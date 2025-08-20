@@ -331,13 +331,18 @@ export function TeamOverview() {
 
   return (
     <div className="space-y-6">
-      {/* Quick Action Button */}
-      <div className="flex justify-end">
+      {/* Header with Monitor Users Button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Team Management</h1>
+          <p className="text-muted-foreground mt-1">Monitor and manage your team's productivity</p>
+        </div>
         <Button 
           onClick={handleMonitorUsers}
-          className="bg-primary hover:bg-primary/90"
+          className="bg-primary hover:bg-primary/90 shadow-lg"
+          size="lg"
         >
-          <Eye className="h-4 w-4 mr-2" />
+          <Eye className="h-5 w-5 mr-2" />
           Monitor Users
         </Button>
       </div>
