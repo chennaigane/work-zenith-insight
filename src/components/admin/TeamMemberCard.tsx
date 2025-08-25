@@ -1,8 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Clock, Activity, TrendingUp, Monitor } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { 
+  User, 
+  Clock, 
+  Activity, 
+  Shield, 
+  Key,
+  RotateCcw
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface TeamMember {
   id: string;
@@ -28,6 +39,7 @@ interface TeamMember {
     id: string;
     session_start: string;
   };
+  password_status?: string;
 }
 
 interface TeamMemberCardProps {
@@ -35,6 +47,15 @@ interface TeamMemberCardProps {
 }
 
 export function TeamMemberCard({ member }: TeamMemberCardProps) {
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
   const getInitials = (name: string | null, email: string) => {
     if (name) {
       return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -42,131 +63,209 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
     return email.substring(0, 2).toUpperCase();
   };
 
-  const getStatusColor = (status: string, isOnline?: boolean) => {
-    if (!isOnline) return 'bg-inactive';
+  const getPasswordStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-success';
-      case 'break': return 'bg-warning';
-      case 'away': return 'bg-warning';
-      case 'busy': return 'bg-destructive';
-      case 'idle': return 'bg-warning';
-      default: return 'bg-inactive';
+      case 'Recent':
+        return 'bg-success text-success-foreground';
+      case 'Good':
+        return 'bg-primary text-primary-foreground';
+      case 'Needs Update':
+        return 'bg-warning text-warning-foreground';
+      case 'Reset Required':
+        return 'bg-destructive text-destructive-foreground';
+      default:
+        return 'bg-muted text-muted-foreground';
     }
   };
 
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
-      return `${hours}h ${mins}m`;
+  const handlePasswordReset = async () => {
+    setLoading(true);
+    try {
+      // Mark user as requiring password reset
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ requires_password_reset: true })
+        .eq('user_id', member.user_id);
+
+      if (updateError) throw updateError;
+
+      // Send password reset email (this would typically be handled by admin)
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        member.email,
+        {
+          redirectTo: `${window.location.origin}/auth`
+        }
+      );
+
+      if (resetError) throw resetError;
+
+      toast({
+        title: "Password Reset Initiated",
+        description: `Password reset email sent to ${member.email}`,
+      });
+    } catch (error: any) {
+      console.error('Error initiating password reset:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initiate password reset",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-    return `${mins}m`;
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+  const getSessionDuration = () => {
+    if (!member.currentSession) return null;
+    const start = new Date(member.currentSession.session_start);
+    const now = new Date();
+    const duration = Math.floor((now.getTime() - start.getTime()) / (1000 * 60));
+    return formatTime(duration);
   };
 
   return (
-    <Card className="bg-gradient-card border-0 shadow-card hover:shadow-lg transition-all duration-200">
-      <CardContent className="p-5 space-y-4">
-        <div className="flex items-start justify-between">
+    <Card className="bg-gradient-card border-0 shadow-card hover:shadow-lg transition-shadow">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Avatar className="h-12 w-12 border-2 border-background">
-                <AvatarImage src="#" alt={member.full_name || member.email} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
-                  {getInitials(member.full_name, member.email)}
-                </AvatarFallback>
-              </Avatar>
-              <div 
-                className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${getStatusColor(
-                  member.currentActivity?.status || 'offline', 
-                  member.isOnline
-                )}`} 
-              />
-            </div>
+            <Avatar className="h-12 w-12">
+              <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                {getInitials(member.full_name, member.email)}
+              </AvatarFallback>
+            </Avatar>
             <div>
-              <h3 className="font-semibold text-sm text-foreground">
-                {member.full_name || 'Unknown User'}
-              </h3>
-              <p className="text-xs text-muted-foreground">{member.email}</p>
-              <Badge 
-                variant={member.role === 'admin' ? 'default' : 'secondary'} 
-                className="text-xs mt-1"
-              >
-                {member.role}
+              <div className="flex items-center space-x-2">
+                <h3 className="font-semibold text-foreground">
+                  {member.full_name || 'Unnamed User'}
+                </h3>
+                {member.role === 'admin' && (
+                  <Shield className="h-4 w-4 text-primary" />
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">{member.email}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Badge 
+              variant={member.isOnline ? "default" : "secondary"}
+              className={member.isOnline ? "bg-success text-success-foreground" : ""}
+            >
+              {member.isOnline ? 'Online' : 'Offline'}
+            </Badge>
+            {member.role === 'admin' && (
+              <Badge variant="outline" className="border-primary text-primary">
+                Admin
               </Badge>
-            </div>
-          </div>
-          <div className="text-right">
-            <span className={`text-xs font-medium ${
-              member.isOnline ? 'text-success' : 'text-muted-foreground'
-            }`}>
-              {member.isOnline ? 'Active' : 'Offline'}
-            </span>
-          </div>
-        </div>
-        
-        {/* Current Activity */}
-        {member.currentActivity && (
-          <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                member.currentActivity.status === 'active' ? 'bg-success' :
-                member.currentActivity.status === 'idle' ? 'bg-warning' : 'bg-muted-foreground'
-              }`}></div>
-              <span className="text-xs font-medium capitalize text-foreground">
-                {member.currentActivity.activity_type}
-              </span>
-            </div>
-            {member.currentActivity.description && (
-              <p className="text-xs text-muted-foreground ml-4">
-                {member.currentActivity.description}
-              </p>
             )}
           </div>
-        )}
-        
-        {/* Productivity Metrics */}
-        {member.productivity && (
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">Productivity</span>
-              <span className="text-sm font-bold text-primary">
-                {member.productivity.productivity_score}%
-              </span>
+        </div>
+
+        {/* Password Status Section */}
+        <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Key className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Password Status:</span>
             </div>
-            <Progress 
-              value={member.productivity.productivity_score} 
-              className="h-2 bg-muted/50"
-            />
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <span className="text-muted-foreground">Active: </span>
-                <span className="font-medium text-foreground">
-                  {formatDuration(member.productivity.total_active_time)}
+            <Badge className={getPasswordStatusColor(member.password_status || 'Unknown')}>
+              {member.password_status || 'Unknown'}
+            </Badge>
+          </div>
+          
+          {(member.password_status === 'Needs Update' || member.password_status === 'Reset Required') && (
+            <div className="mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePasswordReset}
+                disabled={loading}
+                className="w-full"
+              >
+                <RotateCcw className="h-3 w-3 mr-2" />
+                {loading ? 'Sending...' : 'Send Password Reset'}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Current Activity */}
+        {member.currentActivity && (
+          <div className="mb-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Activity className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Current Activity</span>
+            </div>
+            <div className="bg-muted/50 p-3 rounded-lg">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium capitalize text-foreground">
+                  {member.currentActivity.activity_type.replace('_', ' ')}
                 </span>
+                <Badge 
+                  variant={member.currentActivity.status === 'active' ? "default" : "secondary"}
+                  className={member.currentActivity.status === 'active' ? "bg-success text-success-foreground" : ""}
+                >
+                  {member.currentActivity.status}
+                </Badge>
               </div>
-              <div>
-                <span className="text-muted-foreground">Productive: </span>
-                <span className="font-medium text-foreground">
-                  {formatDuration(member.productivity.productive_time)}
-                </span>
-              </div>
+              {member.currentActivity.description && (
+                <p className="text-xs text-muted-foreground">
+                  {member.currentActivity.description}
+                </p>
+              )}
             </div>
           </div>
         )}
-        
+
         {/* Session Info */}
-        {member.currentSession && (
-          <div className="flex items-center space-x-1 text-xs text-muted-foreground pt-2 border-t border-border/50">
-            <Clock className="h-3 w-3" />
-            <span>Online since {formatTime(member.currentSession.session_start)}</span>
+        {member.isOnline && getSessionDuration() && (
+          <div className="mb-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Clock className="h-4 w-4 text-warning" />
+              <span className="text-sm font-medium text-foreground">Active Session</span>
+            </div>
+            <div className="bg-muted/50 p-3 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Duration: {getSessionDuration()}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Productivity Stats */}
+        {member.productivity && (
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <User className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Today's Productivity</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <div className="text-lg font-bold text-primary">
+                  {member.productivity.productivity_score}%
+                </div>
+                <div className="text-xs text-muted-foreground">Score</div>
+              </div>
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <div className="text-lg font-bold text-foreground">
+                  {formatTime(member.productivity.total_active_time)}
+                </div>
+                <div className="text-xs text-muted-foreground">Total Time</div>
+              </div>
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <div className="text-lg font-bold text-success">
+                  {formatTime(member.productivity.productive_time)}
+                </div>
+                <div className="text-xs text-muted-foreground">Productive</div>
+              </div>
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <div className="text-lg font-bold text-warning">
+                  {formatTime(member.productivity.idle_time)}
+                </div>
+                <div className="text-xs text-muted-foreground">Idle</div>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

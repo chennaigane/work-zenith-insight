@@ -33,6 +33,7 @@ interface TeamMember {
     id: string;
     session_start: string;
   };
+  password_status?: string;
 }
 
 export function TeamOverview() {
@@ -41,7 +42,7 @@ export function TeamOverview() {
   const [activeTab, setActiveTab] = useState('overview');
   const { toast } = useToast();
 
-  const setMockData = () => {
+  const setMockData = async () => {
     const mockTeamMembers: TeamMember[] = [
       {
         id: '1',
@@ -51,6 +52,7 @@ export function TeamOverview() {
         role: 'user',
         created_at: '2024-01-15T08:00:00Z',
         isOnline: true,
+        password_status: 'Recent',
         currentActivity: {
           activity_type: 'coding',
           description: 'Working on user dashboard features',
@@ -76,6 +78,7 @@ export function TeamOverview() {
         role: 'user',
         created_at: '2024-01-20T09:00:00Z',
         isOnline: true,
+        password_status: 'Good',
         currentActivity: {
           activity_type: 'meeting',
           description: 'Team standup meeting',
@@ -101,6 +104,7 @@ export function TeamOverview() {
         role: 'user',
         created_at: '2024-02-01T10:00:00Z',
         isOnline: false,
+        password_status: 'Needs Update',
         currentActivity: {
           activity_type: 'break',
           description: 'Lunch break',
@@ -122,6 +126,7 @@ export function TeamOverview() {
         role: 'user',
         created_at: '2024-02-10T11:00:00Z',
         isOnline: true,
+        password_status: 'Reset Required',
         currentActivity: {
           activity_type: 'documentation',
           description: 'Updating API documentation',
@@ -147,6 +152,7 @@ export function TeamOverview() {
         role: 'user',
         created_at: '2024-02-15T12:00:00Z',
         isOnline: true,
+        password_status: 'Good',
         currentActivity: {
           activity_type: 'testing',
           description: 'Running automated tests',
@@ -172,6 +178,7 @@ export function TeamOverview() {
         role: 'user',
         created_at: '2024-02-20T13:00:00Z',
         isOnline: false,
+        password_status: 'Recent',
         currentActivity: {
           activity_type: 'offline',
           description: null,
@@ -193,6 +200,7 @@ export function TeamOverview() {
         role: 'user',
         created_at: '2024-02-25T14:00:00Z',
         isOnline: true,
+        password_status: 'Needs Update',
         currentActivity: {
           activity_type: 'coding',
           description: 'Developing new features',
@@ -264,11 +272,16 @@ export function TeamOverview() {
             .limit(1)
             .maybeSingle();
 
+          // Get password status using the new function
+          const { data: passwordStatusResult } = await supabase
+            .rpc('get_password_status', { user_id: profile.user_id });
+
           return {
             ...profile,
             currentActivity: activity || undefined,
             productivity: productivity || undefined,
             currentSession: currentSession || undefined,
+            password_status: passwordStatusResult || 'Unknown',
             isOnline: !!currentSession
           };
         })
@@ -331,10 +344,10 @@ export function TeamOverview() {
 
   return (
     <div className="space-y-6">
-      {/* Header without Monitor Users Button */}
+      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Team Management</h1>
-        <p className="text-muted-foreground mt-1">Monitor and manage your team's productivity</p>
+        <p className="text-muted-foreground mt-1">Monitor and manage your team's productivity and security</p>
       </div>
 
       {/* Stats Cards */}

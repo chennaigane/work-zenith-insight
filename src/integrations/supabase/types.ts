@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -109,6 +109,8 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          password_last_changed: string | null
+          requires_password_reset: boolean | null
           role: Database["public"]["Enums"]["app_role"] | null
           updated_at: string
           user_id: string
@@ -118,6 +120,8 @@ export type Database = {
           email: string
           full_name?: string | null
           id?: string
+          password_last_changed?: string | null
+          requires_password_reset?: boolean | null
           role?: Database["public"]["Enums"]["app_role"] | null
           updated_at?: string
           user_id: string
@@ -127,6 +131,8 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          password_last_changed?: string | null
+          requires_password_reset?: boolean | null
           role?: Database["public"]["Enums"]["app_role"] | null
           updated_at?: string
           user_id?: string
@@ -255,6 +261,10 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_password_status: {
+        Args: { user_id: string }
+        Returns: string
       }
       set_user_admin_role: {
         Args: { user_email: string }
